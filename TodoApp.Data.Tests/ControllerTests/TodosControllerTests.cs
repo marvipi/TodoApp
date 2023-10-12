@@ -113,7 +113,7 @@ internal class TodosControllerTests
             Assert.That(actionResult.Result, Is.TypeOf<OkObjectResult>());
             Assert.That(response?.Id, Is.EqualTo(newTodo.Id));
             Assert.That(response?.Description, Is.EqualTo(newTodo.Description));
-            Assert.That(response?.Date, Is.EqualTo(newTodo.DueDate));
+            Assert.That(response?.CurrentStateDate, Is.EqualTo(newTodo.DueDate));
             Assert.That(response?.TodoState, Is.EqualTo(newTodo.TodoState));
         });
     }
@@ -184,7 +184,7 @@ internal class TodosControllerTests
             Assert.That(actionResult.Result, Is.TypeOf<OkObjectResult>());
             Assert.That(todoStates.Count(), Is.LessThanOrEqualTo(rows));
             Assert.That(todoStates, Is.All.EqualTo(expectedState));
-            Assert.That(response, Is.Ordered.Ascending.By("Date"));
+            Assert.That(response, Is.Ordered.Ascending.By("CurrentStateDate"));
         });
     }
 

@@ -2,7 +2,7 @@ namespace TodoApp.Data.Domain.Todos;
 
 public class TodoEntity : Entity
 {
-    public string Description { get; private set; }
+    public string Description { get; init; }
     public DateTime CurrentStateDate
     {
         get
@@ -42,31 +42,23 @@ public class TodoEntity : Entity
         TodoState = TodoState.Due;
     }
 
-    public void Update(string newDescription, TodoState newState, DateTime modificationDate)
+    public void Update(TodoState newState, DateTime modificationDate)
     {
-        if (TodoState == newState)
+        switch (TodoState, newState)
         {
-            Description = newDescription;
-            CurrentStateDate = modificationDate;
-        }
-        else
-        {
-            switch (TodoState, newState)
-            {
-                case (TodoState.Done, TodoState.Due):
-                case (TodoState.Cancelled, TodoState.Due):
-                    TodoState = newState;
-                    break;
-                case (TodoState.Due, TodoState.Done):
-                case (TodoState.Due, TodoState.Cancelled):
-                    TodoState = newState;
-                    CurrentStateDate = modificationDate;
-                    break;
-                case (TodoState.Done, TodoState.Cancelled):
-                    throw new System.NotSupportedException("Cannot cancel a completed todo");
-                case (TodoState.Cancelled, TodoState.Done):
-                    throw new System.NotSupportedException("Cannot complete a cancelled todo");
-            }
+            case (TodoState.Done, TodoState.Due):
+            case (TodoState.Cancelled, TodoState.Due):
+                TodoState = newState;
+                break;
+            case (TodoState.Due, TodoState.Done):
+            case (TodoState.Due, TodoState.Cancelled):
+                TodoState = newState;
+                CurrentStateDate = modificationDate;
+                break;
+            case (TodoState.Done, TodoState.Cancelled):
+                throw new System.NotSupportedException("Cannot cancel a completed todo");
+            case (TodoState.Cancelled, TodoState.Done):
+                throw new System.NotSupportedException("Cannot complete a cancelled todo");
         }
     }
 }

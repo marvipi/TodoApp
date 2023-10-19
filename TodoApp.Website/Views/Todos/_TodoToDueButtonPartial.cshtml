@@ -1,0 +1,9 @@
+﻿@using TodoApp.Website.Models.Todos;
+
+<form asp-controller="Todos" asp-action="UpdateAsync" method="POST">
+	<button type="submit" class="todo-update-button"> &#8634 </button>
+	<input type="hidden" name="id" value="@Model.Id" />
+	<input type="hidden" name="oldState" value="@Model.TodoState" />
+	<input type="hidden" name="newState" value="@TodoState.Due" />
+	<input type="hidden" name="modificationDate" value="@DateTime.Now" />
+</form>

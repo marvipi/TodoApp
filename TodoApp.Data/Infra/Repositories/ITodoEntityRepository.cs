@@ -6,8 +6,7 @@ public interface ITodoEntityRepository
 {
     Task AddAsync(TodoEntity todo);
     Task<TodoEntity?> GetAsync(Guid id);
-    Task<IEnumerable<TodoEntity>> GetPagedAsync(int page, int rows, TodoState todoState);
+    Task<IEnumerable<TodoEntity>> GetAllAsync(TodoState todoState);
     Task RemoveAsync(TodoEntity todo);
-    Task RemoveAllAsync();
     Task SaveChangesAsync();
 }

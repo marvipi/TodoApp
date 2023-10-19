@@ -23,25 +23,16 @@ public class TodoEntitySqlServer : ITodoEntityRepository
         return await _dbContext.Todos.FindAsync(id);
     }
 
-    public async Task<IEnumerable<TodoEntity>> GetPagedAsync(int page, int rows, TodoState todoState)
+    public async Task<IEnumerable<TodoEntity>> GetAllAsync(TodoState todoState)
     {
         return await _dbContext.Todos
             .Where(todo => todo.TodoState == todoState)
-            .Skip((page - 1) * rows)
-            .Take(rows)
             .ToListAsync();
     }
 
     public async Task RemoveAsync(TodoEntity todo)
     {
         _dbContext.Todos.Remove(todo);
-        await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task RemoveAllAsync()
-    {
-        var todos = await _dbContext.Todos.ToListAsync();
-        todos.ForEach(todo => _dbContext.Remove(todo));
         await _dbContext.SaveChangesAsync();
     }
 

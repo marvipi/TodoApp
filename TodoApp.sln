@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Data", "TodoApp.Data\TodoApp.Data.csproj", "{2653FC65-8595-4B76-AB31-113BA8304DCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Data", "TodoApp.Data\TodoApp.Data.csproj", "{2653FC65-8595-4B76-AB31-113BA8304DCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Data.Tests", "TodoApp.Data.Tests\TodoApp.Data.Tests.csproj", "{4AC1C292-A6FD-47C7-BAE2-5F192FA39525}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Data.Tests", "TodoApp.Data.Tests\TodoApp.Data.Tests.csproj", "{4AC1C292-A6FD-47C7-BAE2-5F192FA39525}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Website", "TodoApp.Website\TodoApp.Website.csproj", "{5941B5D3-87E6-47EC-8072-896627265232}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{4AC1C292-A6FD-47C7-BAE2-5F192FA39525}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AC1C292-A6FD-47C7-BAE2-5F192FA39525}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AC1C292-A6FD-47C7-BAE2-5F192FA39525}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5941B5D3-87E6-47EC-8072-896627265232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5941B5D3-87E6-47EC-8072-896627265232}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5941B5D3-87E6-47EC-8072-896627265232}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5941B5D3-87E6-47EC-8072-896627265232}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

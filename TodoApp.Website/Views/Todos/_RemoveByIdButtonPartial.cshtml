@@ -1,0 +1,6 @@
+﻿
+<form asp-controller="Todos" asp-action="RemoveAsync" method="POST">
+	<button type="submit" class="todo-update-button"> &#128465 </button>
+	<input type="hidden" name="id" value="@Model.Id">
+	<input type="hidden" name="todoState" value="@Model.TodoState" />
+</form>

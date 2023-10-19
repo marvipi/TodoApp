@@ -72,32 +72,4 @@ internal class TodoRequestValidatorTests
 
         Assert.That(isRequestValid, Is.True);
     }
-
-    [TestCase(null)]
-    [TestCase(TodoRequestValidator.MIN_PAGE_VAL - 1)]
-    [TestCase(TodoRequestValidator.MIN_PAGE_VAL - 500)]
-    public void Validate_PagingRanges_ReturnedPageIsAlwaysGreaterThanOrEqualToTheMinPageValue(int? page)
-    {
-        var validator = new TodoRequestValidator();
-
-        (page, _) = validator.Validate(page, 0);
-
-        Assert.That(page, Is.GreaterThanOrEqualTo(TodoRequestValidator.MIN_PAGE_VAL));
-    }
-
-    [TestCase(null)]
-    [TestCase(TodoRequestValidator.MIN_ROWS_VAL - 1)]
-    [TestCase(TodoRequestValidator.MAX_ROWS_VAL + 2)]
-    public void Validate_PagingRanges_ReturnedPageIsAlwaysBetweenMinRowsValAndMaxRowsVal(int? rows)
-    {
-        var validator = new TodoRequestValidator();
-
-        (_, rows) = validator.Validate(0, rows);
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(rows, Is.GreaterThanOrEqualTo(TodoRequestValidator.MIN_ROWS_VAL));
-            Assert.That(rows, Is.LessThanOrEqualTo(TodoRequestValidator.MAX_ROWS_VAL));
-        });
-    }
 }

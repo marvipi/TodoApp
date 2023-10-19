@@ -53,7 +53,7 @@ public class TodosController : ControllerBase
 
         try
         {
-            todo.Update(request.Description, request.TodoState.Value, request.ModificationDate.Value);
+            todo.Update(request.TodoState.Value, request.ModificationDate.Value);
         }
         catch (NotSupportedException e)
         {
@@ -81,10 +81,9 @@ public class TodosController : ControllerBase
     }
 
     [HttpGet("{todoState}")]
-    public async Task<ActionResult<IEnumerable<TodoGetResponse>>> GetPagedAsync(int? page, int? rows, TodoState todoState)
+    public async Task<ActionResult<IEnumerable<TodoGetResponse>>> GetAllAsync(TodoState todoState)
     {
-        (var validPage, var validRows) = _validator.Validate(page, rows);
-        var todos = await _repository.GetPagedAsync(validPage, validRows, todoState);
+        var todos = await _repository.GetAllAsync(todoState);
 
         if (!todos.Any())
         {
@@ -113,13 +112,6 @@ public class TodosController : ControllerBase
             await _repository.RemoveAsync(todoToRemove);
             return NoContent();
         }
-    }
-
-    [HttpDelete]
-    public async Task<ActionResult> RemoveAllAsync()
-    {
-        await _repository.RemoveAllAsync();
-        return NoContent();
     }
 
     ActionResult GetValidationProblems(IReadOnlyCollection<Notification> notifications)

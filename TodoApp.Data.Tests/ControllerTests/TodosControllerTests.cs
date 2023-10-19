@@ -119,16 +119,16 @@ internal class TodosControllerTests
     }
 
     [Test]
-    public async Task GetPagedAsync_NoTodosInRepository_ReturnsNoContent()
+    public async Task GetAllAsync_NoTodosInRepository_ReturnsNoContent()
     {
         var validator = new TodoRequestValidator();
         var repository = new Mock<ITodoEntityRepository>();
         repository
-            .Setup(r => r.GetPagedAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<TodoState>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<TodoState>()))
             .ReturnsAsync(new List<TodoEntity>());
         var controller = new TodosController(validator, repository.Object);
 
-        var actionResult = await controller.GetPagedAsync(1, 1, TodoState.Due);
+        var actionResult = await controller.GetAllAsync(TodoState.Due);
         var result = actionResult.Result;
 
         Assert.That(result, Is.TypeOf<NoContentResult>());
@@ -138,68 +138,52 @@ internal class TodosControllerTests
     static readonly IEnumerable<TodoEntity> doneTodos = CreateDoneTodos();
     static readonly IEnumerable<TodoEntity> cancelledTodos = CreateCancelledTodos();
     static readonly IEnumerable<TodoEntity> allStatesTodos = dueTodos.Concat(doneTodos).Concat(cancelledTodos);
-    static readonly (int, int, IEnumerable<TodoEntity>, TodoState)[] getPagedSortedTestParams =
+    static readonly (IEnumerable<TodoEntity>, TodoState)[] getPagedSortedTestParams =
     {
-        (1, 2, dueTodos, TodoState.Due),
-        (2, 5, doneTodos, TodoState.Done),
-        (3, 10, cancelledTodos, TodoState.Cancelled),
+        (dueTodos, TodoState.Due),
+        (doneTodos, TodoState.Done),
+        (cancelledTodos, TodoState.Cancelled),
 
-        (5, 5, dueTodos, TodoState.Due),
-        (8, 3, doneTodos, TodoState.Done),
-        (10, 3, cancelledTodos, TodoState.Cancelled),
+        (dueTodos, TodoState.Due),
+        (doneTodos, TodoState.Done),
+        (cancelledTodos, TodoState.Cancelled),
 
-        (7, 5, dueTodos, TodoState.Due),
-        (5, 10, doneTodos, TodoState.Done),
-        (8, 1, cancelledTodos, TodoState.Cancelled),
+        (dueTodos, TodoState.Due),
+        (doneTodos, TodoState.Done),
+        (cancelledTodos, TodoState.Cancelled),
 
-        (7, 7, allStatesTodos, TodoState.Due),
-        (10, 2, allStatesTodos, TodoState.Done),
-        (1, 50, allStatesTodos, TodoState.Cancelled)
+        (allStatesTodos, TodoState.Due),
+        (allStatesTodos, TodoState.Done),
+        (allStatesTodos, TodoState.Cancelled)
     };
     [TestCaseSource(nameof(getPagedSortedTestParams))]
-    public async Task GetPagedAsync_TodosInRepository_ReturnsOkWithResponsesSortedByDateInAscendingOrder(
-        (int, int, IEnumerable<TodoEntity>, TodoState) testParams)
+    public async Task GetAllAsync_TodosInRepository_ReturnsOkWithResponsesSortedByDateInAscendingOrder(
+        (IEnumerable<TodoEntity>, TodoState) testParams)
     {
-        (var page, var rows, var todosInRepository, var expectedState) = testParams;
+        (var todosInRepository, var expectedState) = testParams;
 
         var validator = new TodoRequestValidator();
         var repository = new Mock<ITodoEntityRepository>();
         repository
-            .Setup(r => r.GetPagedAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<TodoState>()))
+            .Setup(r => r.GetAllAsync(expectedState))
             .ReturnsAsync(todosInRepository
-                            .Where(todo => todo.TodoState == expectedState)
-                            .Skip((page - 1) * rows)
-                            .Take(rows));
+                            .Where(todo => todo.TodoState == expectedState));
         var controller = new TodosController(validator, repository.Object);
 
 
-        var actionResult = await controller.GetPagedAsync(page, rows, expectedState);
+        var actionResult = await controller.GetAllAsync(expectedState);
         var result = actionResult.Result as OkObjectResult;
         var response = result?.Value as IEnumerable<TodoGetResponse>;
         var todoStates = response?.Select(r => r.TodoState);
-
+        var todosInRepoCount = todosInRepository.Where(t => t.TodoState == expectedState).Count();
 
         Assert.Multiple(() =>
         {
             Assert.That(actionResult.Result, Is.TypeOf<OkObjectResult>());
-            Assert.That(todoStates.Count(), Is.LessThanOrEqualTo(rows));
+            Assert.That(todoStates.Count(), Is.EqualTo(todosInRepoCount));
             Assert.That(todoStates, Is.All.EqualTo(expectedState));
             Assert.That(response, Is.Ordered.Ascending.By("CurrentStateDate"));
         });
-    }
-
-    [Test]
-    public async Task RemoveAllAsync_TodosInRepository_RepositoryCallsRemoveAllAsync()
-    {
-        var validator = new TodoRequestValidator();
-        var repository = new Mock<ITodoEntityRepository>();
-        repository
-            .Setup(r => r.RemoveAllAsync());
-        var controller = new TodosController(validator, repository.Object);
-
-        await controller.RemoveAllAsync();
-
-        repository.Verify(r => r.RemoveAllAsync(), Times.Once());
     }
 
     [Test]
@@ -240,7 +224,7 @@ internal class TodosControllerTests
     [Test]
     public async Task UpdateAsync_InvalidRequest_ReturnsBadRequestWithNotificationErrors()
     {
-        var request = new TodoPutRequest(null, null, null);
+        var request = new TodoPutRequest(null, null);
         var validator = new TodoRequestValidator();
         var repository = new Mock<ITodoEntityRepository>();
         var controller = new TodosController(validator, repository.Object);
@@ -262,7 +246,7 @@ internal class TodosControllerTests
     public async Task UpdateAsync_IdNotInRepository_ReturnsNotFound()
     {
         var invalidId = Guid.Empty;
-        var request = new TodoPutRequest("Test the update async method", TodoState.Done, new DateTime(2023, 10, 8, 13, 16, 31));
+        var request = new TodoPutRequest(TodoState.Done, new DateTime(2023, 10, 8, 13, 16, 31));
         var validator = new TodoRequestValidator();
         var repository = new Mock<ITodoEntityRepository>();
         repository
@@ -279,7 +263,7 @@ internal class TodosControllerTests
     public async Task UpdateAsync_IdInRepositoryAndValidRequest_ReturnsNoContent()
     {
         var todo = new TodoEntity("Refactor the project", new DateTime(2023, 10, 7, 23, 59, 59));
-        var request = new TodoPutRequest("Refactor the project", TodoState.Cancelled, new DateTime(2023, 10, 8, 13, 18, 54));
+        var request = new TodoPutRequest(TodoState.Cancelled, new DateTime(2023, 10, 8, 13, 18, 54));
         var validator = new TodoRequestValidator();
         var repository = new Mock<ITodoEntityRepository>();
         repository
@@ -314,8 +298,8 @@ internal class TodosControllerTests
         var controller = new TodosController(validator, repository.Object);
 
 
-        todo.Update("Doesn't matter", currentState, new DateTime(2023, 10, 9, 8, 40, 51));
-        var request = new TodoPutRequest("Add a new delete method", invalidNewState, new DateTime(2023, 10, 9, 8, 42, 42));
+        todo.Update(currentState, new DateTime(2023, 10, 9, 8, 40, 51));
+        var request = new TodoPutRequest(invalidNewState, new DateTime(2023, 10, 9, 8, 42, 42));
         var actionResult = await controller.UpdateAsync(todo.Id, request);
         var result = actionResult as ConflictObjectResult;
         var problemDetails = result?.Value as ValidationProblemDetails;
@@ -348,7 +332,7 @@ internal class TodosControllerTests
         var completionDate = new DateTime(2023, 10, 7, 18, 57, 9);
         for (int i = 0; i < todos.Count; i++)
         {
-            todos[i].Update(todos[i].Description, TodoState.Done, completionDate.AddHours(1));
+            todos[i].Update(TodoState.Done, completionDate.AddHours(1));
         }
         return todos;
     }
@@ -359,7 +343,7 @@ internal class TodosControllerTests
         var cancellationDate = new DateTime(2023, 10, 07, 18, 47, 11);
         for (int i = 0; i < todos.Count; i++)
         {
-            todos[i].Update(todos[i].Description, TodoState.Cancelled, cancellationDate.AddHours(i));
+            todos[i].Update(TodoState.Cancelled, cancellationDate.AddHours(i));
         }
         return todos;
     }

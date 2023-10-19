@@ -1,0 +1,34 @@
+﻿@using TodoApp.Website.Models.Todos;
+
+@model TodoViewModel;
+
+@{
+	ViewData["Title"] = "Tarefas feitas";
+}
+<h1> Tarefas feitas </h1>
+
+<table class="table todo-table">
+	<thead>
+		<tr>
+			<th> </th>
+			<th> Descrição </th>
+			<th> Data de conclusão </th>
+			<th> </th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var todoModel in Model.Todos)
+		{
+			<tr>
+				<th>
+					@await Html.PartialAsync("_TodoToDueButtonPartial", todoModel)
+				</th>
+				<th> @todoModel.Description </th>
+				<th> @todoModel.CurrentStateDate </th>
+				<th>
+					@await Html.PartialAsync("_RemoveByIdButtonPartial", todoModel)
+				</th>
+			</tr>
+		}
+	</tbody>
+</table>

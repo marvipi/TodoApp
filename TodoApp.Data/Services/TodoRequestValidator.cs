@@ -7,11 +7,6 @@ namespace TodoApp.Data.Services;
 
 public class TodoRequestValidator : Notifiable<Notification>
 {
-    public const int MIN_PAGE_VAL = 1;
-    public const int MIN_ROWS_VAL = 1;
-    public const int MAX_ROWS_VAL = 50;
-    public const int DEFAULT_ROWS_VAL = 25;
-
     public bool Validate(TodoPostRequest request)
     {
         ValidateNullProperties(request);
@@ -31,32 +26,7 @@ public class TodoRequestValidator : Notifiable<Notification>
     {
         ValidateNullProperties(request);
 
-        if (!IsValid)
-        {
-            return false;
-        }
-        else
-        {
-            ValidateDescription(request.Description);
-            return IsValid;
-        }
-    }
-
-    public (int validPage, int validRows) Validate(int? page, int? rows)
-    {
-        var validPage = page is null or < MIN_PAGE_VAL
-            ? MIN_ROWS_VAL
-            : page.Value;
-
-        var validRows = rows switch
-        {
-            null => DEFAULT_ROWS_VAL,
-            < MIN_ROWS_VAL => DEFAULT_ROWS_VAL,
-            > MAX_ROWS_VAL => MAX_ROWS_VAL,
-            _ => rows.Value
-        };
-
-        return (validPage, validRows);
+        return IsValid;
     }
 
     void ValidateNullProperties(TodoPostRequest request)
@@ -71,7 +41,6 @@ public class TodoRequestValidator : Notifiable<Notification>
     void ValidateNullProperties(TodoPutRequest request)
     {
         var nullPropertiesContract = new Contract<TodoPutRequest>()
-            .IsNotNull(request.Description, "Description", "Missing required parameter: Description")
             .IsNotNull(request.TodoState, "TodoState", "Missing required parameter: TodoState")
             .IsNotNull(request.ModificationDate, "ModificationDate", "Missing required parameter: ModificationDate");
 
